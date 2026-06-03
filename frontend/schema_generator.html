@@ -1,1 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Generator - SQL Migrator</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 85%;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            height: 300px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .download-btn {
+            background: #28a745;
+        }
+
+        .download-btn:hover {
+            background: #1e7e34;
+        }
+
+        .navbar {
+            background: #343a40;
+            padding: 15px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="converter.html">SQL Converter</a>
+        <a href="schema_generator.html">Schema Generator</a>
+        <a href="reports.html">Reports</a>
+        <a href="admin.html">Admin</a>
+    </div>
+
+    <div class="container">
+
+        <h2>Schema Generator</h2>
+
+        <label>Upload Excel Schema File</label>
+        <input type="file" id="excelFile" accept=".xlsx,.xls">
+
+        <label>Database Name</label>
+        <input type="text" id="databaseName" placeholder="Enter Database Name">
+
+        <label>Table Name</label>
+        <input type="text" id="tableName" placeholder="Enter Table Name">
+
+        <label>Source Database</label>
+        <select id="sourceDB">
+            <option value="mysql">MySQL</option>
+            <option value="postgresql">PostgreSQL</option>
+            <option value="oracle">Oracle</option>
+            <option value="sqlite">SQLite</option>
+        </select>
+
+        <label>Target Database</label>
+        <select id="targetDB">
+            <option value="mysql">MySQL</option>
+            <option value="postgresql">PostgreSQL</option>
+            <option value="oracle">Oracle</option>
+            <option value="sqlite">SQLite</option>
+        </select>
+
+        <label>Schema Definition</label>
+        <textarea id="schemaInput"
+            placeholder="Example:
+
+id INT PRIMARY KEY,
+name VARCHAR(100),
+email VARCHAR(255) UNIQUE,
+created_at DATE
+"></textarea>
+
+        <div class="btn-group">
+            <button onclick="generateSchema()">
+                Generate Schema
+            </button>
+
+            <button class="download-btn"
+                    onclick="downloadSQL()">
+                Download SQL
+            </button>
+        </div>
+
+        <label>Generated SQL</label>
+        <textarea id="generatedSQL" readonly></textarea>
+
+    </div>
+
+<script>
+
+function generateSchema() {
+
+    let dbName = document.getElementById("databaseName").value;
+    let tableName = document.getElementById("tableName").value;
+    let schema = document.getElementById("schemaInput").value;
+
+    if(tableName === "" || schema === "") {
+        alert("Please enter table details.");
+        return;
+    }
+
+    let sql = `CREATE TABLE ${tableName} (\n${schema}\n);`;
+
+    document.getElementById("generatedSQL").value = sql;
+}
+
+function downloadSQL() {
+
+    let sqlContent =
+        document.getElementById("generatedSQL").value;
+
+    if(sqlContent === "") {
+        alert("Generate SQL first.");
+        return;
+    }
+
+    const blob = new Blob(
+        [sqlContent],
+        { type: "text/sql" }
+    );
+
+    const link =
+        document.createElement("a");
+
+    link.href =
+        window.URL.createObjectURL(blob);
+
+    link.download = "schema.sql";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+</script>
+
+</body>
+</html>
 
