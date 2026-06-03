@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Migrator - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style_admin.css">
+</head>
+<body>
+    <div class="admin-shell">
+        <header class="admin-header">
+            <div class="brand">
+                <h1>Administrator Console</h1>
+                <p>Manage users, monitor activity, configure conversion rules, and review reports.</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="converter.html">Converter</a>
+                <a href="reports.html">Reports</a>
+                <a href="schema_generator.html">Schema Generator</a>
+                <a href="login.html" class="logout">Logout</a>
+            </nav>
+        </header>
+
+        <section class="admin-summary">
+            <article class="summary-card card-users">
+                <h2>User Management</h2>
+                <p>Create, update, and revoke user access across the system.</p>
+                <ul>
+                    <li>View active users</li>
+                    <li>Assign roles</li>
+                    <li>Reset credentials</li>
+                </ul>
+                <button>Open User Panel</button>
+            </article>
+            <article class="summary-card card-monitoring">
+                <h2>Monitoring Activities</h2>
+                <p>Track conversions, system health, and live performance metrics.</p>
+                <ul>
+                    <li>Audit recent activity</li>
+                    <li>Monitor queue status</li>
+                    <li>Detect failures and retries</li>
+                </ul>
+                <button>View Activity</button>
+            </article>
+            <article class="summary-card card-rules">
+                <h2>Conversion Rules</h2>
+                <p>Manage rule sets and mapping templates used for SQL conversions.</p>
+                <ul>
+                    <li>Review rule definitions</li>
+                    <li>Edit mapping behavior</li>
+                    <li>Enable or disable rules</li>
+                </ul>
+                <button>Manage Rules</button>
+            </article>
+            <article class="summary-card card-reports">
+                <h2>Reports & Logs</h2>
+                <p>Access conversion reports, error logs, and system audit details.</p>
+                <ul>
+                    <li>Download activity reports</li>
+                    <li>Inspect conversion logs</li>
+                    <li>Filter by date or user</li>
+                </ul>
+                <button>Open Reports</button>
+            </article>
+        </section>
+
+        <section class="admin-details">
+            <div class="detail-panel">
+                <h3>Recent Administrator Actions</h3>
+                <div class="detail-list">
+                    <div class="detail-item"><strong>Updated</strong> conversion rules for MySQL → PostgreSQL.</div>
+                    <div class="detail-item"><strong>Approved</strong> 12 new user registrations.</div>
+                    <div class="detail-item"><strong>Reviewed</strong> reports for today’s batch conversions.</div>
+                </div>
+            </div>
+            <div class="detail-panel">
+                <h3>System Status</h3>
+                <div class="status-grid">
+                    <div><span class="status-dot online"></span> Conversion Service: Online</div>
+                    <div><span class="status-dot warning"></span> Pending Rules Review: 3</div>
+                    <div><span class="status-dot online"></span> Active Sessions: 18</div>
+                    <div><span class="status-dot offline"></span> Failed Jobs: 1</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
 
