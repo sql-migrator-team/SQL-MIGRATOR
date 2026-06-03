@@ -1,111 +1,82 @@
 **Frontend Integration Notes**
 
-This document lists the minimal changes your frontend needs to make to work with the updated backend in this repository.
+This document lists the frontend state and the concrete changes needed for the current HTML pages in this repository.
 
-Summary of backend changes
-- **CORS enabled** for common local origins. The API accepts requests from `http://localhost`, `http://127.0.0.1` and ports like `3000`.
-- Static files are mounted at `/static` (optional).
-- Endpoints available:
-  - `POST /convert` — multipart file upload (`file` form field). Optional form fields: `source_db`, `target_db`.
-  - `POST /convert_text` — JSON body: `{ sql_text, source_db, target_db }` for converting text directly.
-  - `GET /health` — health check.
+Current frontend page status
+- `frontend/admin.html` — empty placeholder. No admin UI content exists yet.
+- `frontend/dashboard.html` — empty placeholder. No dashboard markup exists yet.
+- `frontend/reports.html` — empty placeholder. No report UI exists yet.
+- `frontend/login.html` — simple login form posting to `/login`, but backend currently has no login endpoint in this repo.
+- `frontend/converter.html` — contains a file upload form, source/target selectors, and a mock submit handler that only shows an alert.
+- `frontend/schema_generator.html` — contains a client-side schema generator and download flow, with no backend integration.
 
-Required frontend changes
-- Ensure the frontend sends requests to the correct backend origin, e.g. `http://localhost:8000`.
-- Use a file upload form that posts to `/convert` using `fetch` + `FormData`.
-- Optionally provide a textarea + button that sends JSON to `/convert_text`.
+Backend integration requirements
+- `POST /convert` — multipart file upload with `file` form field. Optional form fields: `source_db`, `target_db`.
+- `POST /convert_text` — JSON payload: `{ sql_text, source_db, target_db }`.
+- `GET /health` — health check.
+- CORS is enabled in the backend for local origins such as `http://localhost` and `http://127.0.0.1`.
 
-Recommended HTML element IDs (examples)
-- File input: `sqlFile` (type="file")
-- Source DB select: `sourceDb` (e.g. mysql)
-- Target DB select: `targetDb` (e.g. postgresql)
-- Convert button: `convertBtn`
-- Textarea for SQL input: `sqlText`
-- Result container: `convertedSql`
-- Validation container: `validation`
-- Report container: `report`
+Required changes for current pages
 
-Sample JavaScript for file upload (replace or add to `frontend/js/script.js`):
+`frontend/converter.html`
+- Replace the current mock `handleSubmit()` alert behavior with a real upload to the backend.
+- Use `FormData` to send `fileUpload`, `sourceDatabase`, and `targetDatabase` to `http://localhost:8000/convert`.
+- Update element IDs or map existing IDs to the backend field names:
+  - file input: `fileUpload`
+  - source select: `sourceDatabase`
+  - target select: `targetDatabase`
+- Display backend response data instead of only showing the alert.
+
+`frontend/login.html`
+- Either add a backend `/login` endpoint or remove/replace the login form.
+- If login is unnecessary, keep this page as a placeholder or redirect users to `converter.html`.
+
+`frontend/schema_generator.html`
+- This page currently works offline to build SQL and download a file.
+- If you want backend support, add a `fetch` call to send generated SQL to `/convert_text` or another backend endpoint.
+- Otherwise keep it as a self-contained schema generator.
+
+Missing pages needing implementation
+- `frontend/admin.html` — implement admin controls or remove the file if unused.
+- `frontend/dashboard.html` — add dashboard content or use an existing page instead.
+- `frontend/reports.html` — implement report listing or analytics.
+
+Suggested integration for `frontend/converter.html`
+
+Example JavaScript for backend upload:
 
 ```javascript
-async function uploadAndConvert() {
-  const fileInput = document.getElementById('sqlFile');
-  const source = document.getElementById('sourceDb').value || 'mysql';
-  const target = document.getElementById('targetDb').value || 'postgresql';
+async function handleSubmit(event) {
+  event.preventDefault();
 
-  if (!fileInput.files.length) {
-    alert('Select a SQL file first');
+  const file = document.getElementById('fileUpload').files[0];
+  const source = document.getElementById('sourceDatabase').value;
+  const target = document.getElementById('targetDatabase').value;
+
+  if (!file || !source || !target) {
+    alert('Please fill in all required fields');
     return;
   }
 
-  const form = new FormData();
-  form.append('file', fileInput.files[0]);
-  form.append('source_db', source);
-  form.append('target_db', target);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('source_db', source);
+  formData.append('target_db', target);
 
   const res = await fetch('http://localhost:8000/convert', {
     method: 'POST',
-    body: form,
+    body: formData,
   });
 
   const data = await res.json();
-  if (res.ok) {
-    document.getElementById('convertedSql').textContent = data.converted_sql;
-    document.getElementById('validation').textContent = JSON.stringify(data.validation, null, 2);
-    document.getElementById('report').textContent = JSON.stringify(data.report, null, 2);
-  } else {
-    alert('Error: ' + (data.detail || data.message || JSON.stringify(data)));
+  if (!res.ok) {
+    alert('Conversion failed: ' + (data.detail || data.message || JSON.stringify(data)));
+    return;
   }
-}
 
-document.getElementById('convertBtn').addEventListener('click', uploadAndConvert);
+  console.log('Conversion result:', data);
+  alert('Migration completed successfully. See console for details.');
+}
 ```
 
-Sample JavaScript for text conversion (useful for textarea):
-
-```javascript
-async function convertText() {
-  const sql = document.getElementById('sqlText').value;
-  const source = document.getElementById('sourceDb').value || 'mysql';
-  const target = document.getElementById('targetDb').value || 'postgresql';
-
-  const res = await fetch('http://localhost:8000/convert_text', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sql_text: sql, source_db: source, target_db: target }),
-  });
-
-  const data = await res.json();
-  if (res.ok) {
-    document.getElementById('convertedSql').textContent = data.converted_sql;
-    document.getElementById('validation').textContent = JSON.stringify(data.validation, null, 2);
-    document.getElementById('report').textContent = JSON.stringify(data.report, null, 2);
-  } else {
-    alert('Error: ' + (data.detail || data.message || JSON.stringify(data)));
-  }
-}
-
-// Hook a button with id `convertTextBtn` to call convertText()
-```
-
-Notes and tips
-- If you serve the frontend from a different host/port, add that origin to the `allow_origins` list in `backend/main.py`.
-- The backend returns `validation` as a `ValidationResult` object (serialized by FastAPI). Use `JSON.stringify()` to inspect.
-- To serve the frontend from the backend, place the built frontend files in the `frontend/` folder and request static assets at `/static/`.
-
-If you want, I can:
-- Add example form markup to `frontend/converter.html` and wire it to `frontend/js/script.js`.
-- Add CORS wildcard for quick testing (not recommended for production).
-## Frontend change checklist (from -> to)
-
-- `fetch('/convert')` -> `fetch('http://localhost:8000/convert')`
-- `fetch('/convert_text')` -> `fetch('http://localhost:8000/convert_text')`
-- file input name `sql` or custom name -> `file` in `FormData`
-- source DB form field name `sourceDb` or custom name -> `source_db`
-- target DB form field name `targetDb` or custom name -> `target_db`
-- text conversion JSON field `sql` or custom name -> `sql_text`
-- direct textarea-only form -> `POST` JSON body with `Content-Type: application/json`
-- frontend file upload form -> `multipart/form-data` request body using `FormData`
-- static file references from `frontend/...` to backend-served `/static/...` if you want the backend to serve the UI
-- local frontend origin `file://` or another port -> add that origin to `allow_origins` in `backend/main.py`
-- result display area `output` or other id -> `convertedSql`/`validation`/`report` as recommended IDs for example script wiring
+If you want, I can also update `frontend/converter.html` and `frontend/js/script.js` with a working backend integration implementation.
