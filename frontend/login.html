@@ -9,7 +9,7 @@
 <body>
   <div class="login-container">
     <h2>SQL Migrator Login</h2>
-    <form action="/login" method="POST">
+    <form id="loginForm">
       <div class="form-group">
         <label for="username">Username / Email</label>
         <input type="text" id="username" name="username" required>
@@ -18,11 +18,46 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
       </div>
+      <div id="loginMessage" class="login-message"></div>
       <button type="submit" class="login-btn">Login</button>
     </form>
     <div class="extra-links">
-      <a href="#">Forgot Password?</a> | <a href="#">Register</a>
+      <a href="#">Forgot Password?</a> | <a href="reg.html">Register</a>
     </div>
   </div>
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const loginMessage = document.getElementById('loginMessage');
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(loginForm);
+      const payload = new URLSearchParams();
+      formData.forEach((value, key) => payload.append(key, value));
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: payload
+        });
+
+        if (response.ok) {
+          window.location.href = '/static/dashboard.html';
+          return;
+        }
+
+        const result = await response.json();
+        loginMessage.textContent = result.detail || 'Login failed. Please try again.';
+        loginMessage.style.color = 'red';
+      } catch (error) {
+        loginMessage.textContent = 'Unable to connect to the backend.';
+        loginMessage.style.color = 'red';
+      }
+    });
+  </script>
 </body>
 </html>
