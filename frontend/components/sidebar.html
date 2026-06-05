@@ -1,0 +1,16 @@
+<aside class="sidebar" aria-label="Primary navigation">
+  <div>
+    <div class="sidebar__brand">
+      <div class="sidebar__logo" aria-hidden="true">SM</div>
+      <div class="sidebar__brand-text">
+        <p class="sidebar__title">SQL Migrator</p>
+        <p class="sidebar__subtitle">Migration platform</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav" aria-label="Sidebar menu"></nav>
+  </div>
+  <div class="sidebar-footer">
+    <a href="#" id="logout-link" class="logout-button">Logout</a>
+  </div>
+  <button class="sidebar-collapse" aria-label="Toggle sidebar">⇆</button>
+</aside>

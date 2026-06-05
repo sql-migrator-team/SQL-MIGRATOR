@@ -1,0 +1,40 @@
+from typing import Any, Dict
+
+from sqlalchemy.engine import Engine
+
+from .mysql_connection import create_mysql_engine
+from .postgres_connection import create_postgres_engine
+from .sqlite_connection import create_sqlite_engine
+from .oracle_connection import create_oracle_engine
+
+
+def create_engine_for_config(config: Dict[str, Any]) -> Engine:
+    """Create a SQLAlchemy engine based on common application configuration."""
+    db_type = config.get("db_type")
+    if db_type == "mysql":
+        return create_mysql_engine(
+            username=config.get("username", ""),
+            password=config.get("password", ""),
+            host=config.get("host", "localhost"),
+            port=config.get("port", "3306"),
+            database=config.get("database", ""),
+        )
+    if db_type == "postgresql":
+        return create_postgres_engine(
+            username=config.get("username", ""),
+            password=config.get("password", ""),
+            host=config.get("host", "localhost"),
+            port=config.get("port", "5432"),
+            database=config.get("database", ""),
+        )
+    if db_type == "sqlite":
+        return create_sqlite_engine(config.get("database", ":memory:"))
+    if db_type == "oracle":
+        return create_oracle_engine(
+            username=config.get("username", ""),
+            password=config.get("password", ""),
+            host=config.get("host", "localhost"),
+            port=config.get("port", "1521"),
+            service_name=config.get("database", "XE"),
+        )
+    raise ValueError(f"Unsupported database type: {db_type}")
